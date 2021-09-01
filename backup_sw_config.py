@@ -26,7 +26,6 @@ logger.addHandler(file_handler)
 ip_list = [
     ['E1-19-S12508G','172.21.10.1'],
     ['E4-E5-45-6520X-jieru','172.21.10.2'],
-
 ]
 
 SW = {
