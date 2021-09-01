@@ -26,6 +26,7 @@ logger.addHandler(file_handler)
 ip_list = [
     ['E1-19-S12508G','172.21.10.1'],
     ['E4-E5-45-6520X-jieru','172.21.10.2'],
+
 ]
 
 SW = {
@@ -45,7 +46,7 @@ for ip_item in ip_list:
         logger.info('Successfully connected to ' + SW['ip'] + "	" + ip_item[0])
         config = connect.send_command('dis cur')
         fan = connect.send_command('dis fan')
-        file_name = ip_item[0] + file_time + '-.conf'
+        file_name = ip_item[0] + '-'+ file_time + '.conf'
         with open(file_name,'a') as f:
             f.write(config)
     except (EOFError,NetmikoTimeoutException):
@@ -57,3 +58,17 @@ for ip_item in ip_list:
     except (ValueError,NetmikoAuthenticationException):
         #print(SW['ip'] + '  enable password wrong!')
         logger.error(SW['ip'] + 'enable password wrong!')
+    except (KeyboardInterrupt):
+        logger.info("process exit by ctrl + c")
+        exit()
+
+
+
+
+
+
+try:
+  while 1:
+    pass
+except KeyboardInterrupt:
+  pass
