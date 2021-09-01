@@ -61,14 +61,3 @@ for ip_item in ip_list:
     except (KeyboardInterrupt):
         logger.info("process exit by ctrl + c")
         exit()
-
-
-
-
-
-
-try:
-  while 1:
-    pass
-except KeyboardInterrupt:
-  pass
