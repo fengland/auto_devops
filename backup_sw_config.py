@@ -1,4 +1,4 @@
-import time,os,logging,pathlib
+import time,logging,pathlib
 from netmiko import ConnectHandler
 from netmiko.ssh_exception import NetmikoTimeoutException
 from netmiko.ssh_exception import NetmikoAuthenticationException
