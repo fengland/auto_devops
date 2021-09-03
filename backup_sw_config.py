@@ -1,4 +1,4 @@
-import time,logging,pathlib
+import time,os,logging,pathlib
 from netmiko import ConnectHandler
 from netmiko.ssh_exception import NetmikoTimeoutException
 from netmiko.ssh_exception import NetmikoAuthenticationException
@@ -17,7 +17,8 @@ stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.DEBUG)
 stream_handler.setFormatter(formatter)
 
-file_handler = logging.FileHandler('sw_conf_back.log')
+log_file = pathlib.Path('sw_conf_back.log')
+file_handler = logging.FileHandler(log_file)
 file_handler.setLevel(level=logging.INFO)
 file_handler.setFormatter(formatter)
 
