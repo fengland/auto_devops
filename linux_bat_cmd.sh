@@ -3,7 +3,7 @@
 # 通过遍历cmd.list依次运行每一条命令
 # 输出结果保存在ssh.log中
 # Usage: sh ssh.sh
-# date: 2021.11.11
+# date: 2021.11.19
 # auth: feng_land@163.com
 
 
