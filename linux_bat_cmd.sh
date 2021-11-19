@@ -1,4 +1,5 @@
 #!/bin/bash
+# 本脚本依赖sshpass，使用前需要在主机上安装sshpass
 # 本程序通过读取ip.list中ip地址条目遍历每台主机
 # 通过遍历cmd.list依次运行每一条命令
 # 输出结果保存在ssh.log中
