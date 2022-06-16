@@ -1,4 +1,4 @@
-import time,logging,pathlib,os
+import time,os,logging,pathlib
 from netmiko import ConnectHandler
 from netmiko.ssh_exception import NetmikoTimeoutException
 from netmiko.ssh_exception import NetmikoAuthenticationException
@@ -17,7 +17,7 @@ stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.DEBUG)
 stream_handler.setFormatter(formatter)
 
-log_file = pathlib.Path('sw_conf_back.log')
+log_file = pathlib.Path('/root/netmiko.sw/sw_conf_back.log')
 file_handler = logging.FileHandler(log_file)
 file_handler.setLevel(level=logging.INFO)
 file_handler.setFormatter(formatter)
@@ -27,32 +27,14 @@ logger.addHandler(file_handler)
 
 
 ip_list = [
-    ['E1-19-S12508G','172.21.10.1'],
-    ['E4-E5-45-6520X-jieru','172.21.10.2'],
-    ['E8-E9-45-6520X-jieru','172.21.10.3'],
-    ['ZJ-JH-YX-2#401_E12_E13U45-SA6520X-BEISHOU','172.21.10.4'],
-    ['F02-F03-45-6520X-jieru','172.21.10.5'],
-    ['F6-F7-45-6520X-jieru','172.21.10.6'],
-    ['F10-F11-45-6520X-jieru','172.21.10.7'],
-    ['F14-F15-45-6520X-jieru','172.21.10.8'],
-    ['E16-45-5130-jieru','172.21.10.9'],
-    ['D16-45-5130-jieru','172.21.10.10'],
-    ['ZJ-JH-YX-2#401_G03U45-SA6520X-CASH','172.21.10.11'],
-    ['ZJ-JH-YX-2#401_G06_G07U45-SA6520X-CASH','172.21.10.12'],
-    ['ZJ-JH-YX-2#401_J11_J12U45-SA6520X-KOREA','172.21.10.33'],
-    ['ZJ-JH-YX-2#401_J15U45-S6520X-PADENG','172.21.10.34'],
-    ['ZJ-JH-YX-2#401_D09U45-SA6520X-TZ','172.21.10.35'],
-    ['ZJ-JH-YX-2#401_G10_G11U45-SA6520X-TZ','172.21.10.36'],
-    ['ZJ-JH-YX-2#401_G13_G14U45-SA6520X-YUANQUAN','172.21.10.51'],
-    ['ZJ-JH-YX-2#401_H12U45-SA6520X-YUANQUAN','172.21.10.52'],
-    ['ZJ-JH-YX-2#401_I16U45-SA6520X-ZAB','172.21.10.53'],
+    ['fw1','10.10.10.1'],
 ]
 
 SW = {
     'device_type': 'hp_comware',
-    'username': 'wangxufeng',
+    'username': 'user1',
     'ip': '',
-    'password': "123456"
+    'password': "password1"
 }
 
 for ip_item in ip_list:
@@ -63,11 +45,19 @@ for ip_item in ip_list:
         connect = ConnectHandler(**SW)
         #print(log_time + '	Successfully connected to ' + SW['ip'] + "	" + ip_item[0])
         logger.info('Successfully connected to ' + SW['ip'] + "	" + ip_item[0])
+        safor = connect.send_command('save force')
         config = connect.send_command('dis cur')
-        fan = connect.send_command('dis fan')
-        file_dir = pathlib.Path() / "conf_backup"
+        # fan = connect.send_command('dis fan')
+
+
+        # 指定备份文件目录
+        file_dir = pathlib.Path('conf_backup1')
+        # 如果不存在，则创建
+        if not file_dir.exists():
+            file_dir.mkdir()
         file_base_name = ip_item[0] + '-' + file_time + '.conf'
         file_name = file_dir / file_base_name
+
         with open(file_name,'a') as f:
             f.write(config)
     except (EOFError,NetmikoTimeoutException):
