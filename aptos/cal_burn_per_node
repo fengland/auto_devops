@@ -1,0 +1,21 @@
+node_summary = {}
+with open('all_node_burn','r',encoding='utf-8') as f:
+    while True:
+        line = f.readline()
+        if line:
+            k = line.split()[0]
+            v =  float(line.split()[1])
+            # print(k,v)
+            if k in node_summary.keys():
+                node_summary[k] += v
+            else:
+                node_summary[k] = v
+        else:
+            break
+
+
+# print(node_summary)
+for k,v in node_summary.items():
+    v = float('%.4f' % v)
+    print(k,float('%.4f' % v))
+# print(node_summary)
