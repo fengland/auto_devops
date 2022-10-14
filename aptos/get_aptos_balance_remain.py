@@ -20,10 +20,10 @@ response_dict = json.loads(response)
 # print("当前余额：{}".format(response_dict[0]['data']['active']['value']))
 
 
-time_now = "当前时间： " + str(datetime.datetime.now())
+time_now = "当前时间： " + str(datetime.datetime.now().strftime("%Y-%m-%d  %H:%M:%S"))
 aptos_address = "APTOS钱包地址： 0x6c8a3474cb49202515d121fea0f3217d303e41f6bdc43e615f1cd90855118089"
 balance_remaining = "当前余额：" + response_dict[0]['data']['active']['value']
-with open('npool_aptos_balance_remaining.txt','w',encoding='utf-8') as f:
+with open('/root/aptos_check/npool_aptos_balance_remaining.txt','w',encoding='utf-8') as f:
     f.write(time_now + "\n")
     f.write(aptos_address + "\n")
     f.write(balance_remaining + "\n")
