@@ -1,29 +1,21 @@
-import requests,re,json,datetime
+#!/bin/bash
+# 通过爬取页机获取的数据一直不变，现通过aptos命令获取
 
-# 本脚本参考以下页面
-# https://aptos.dev/guides/system-integrators-guide
-
-# 以下URL由https://explorer.aptoslabs.com/account/0x6c8a3474cb49202515d121fea0f3217d303e41f6bdc43e615f1cd90855118089?network=premainnet
-# 通过查找resource文件，预览文件获取得到
-url= "https://premainnet.aptosdev.com/v1/accounts/0x6c8a3474cb49202515d121fea0f3217d303e41f6bdc43e615f1cd90855118089/resources"
-
-headers = {"Content-Type": "application/json",
-           "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36"
-           }
-
-response = requests.request("GET", url, headers=headers).text
-
-response_dict = json.loads(response)
-
-# print("当前时间：{}".format(datetime.datetime.now()))
-# print("APTOS钱包地址：0x6c8a3474cb49202515d121fea0f3217d303e41f6bdc43e615f1cd90855118089")
-# print("当前余额：{}".format(response_dict[0]['data']['active']['value']))
+SHELL_FOLDER=$(cd $(dirname "$0");pwd)
+MAIL_CONTEXT="${SHELL_FOLDER}/mail.context"
+DATETIME=$(date)
 
 
-time_now = "当前时间： " + str(datetime.datetime.now().strftime("%Y-%m-%d  %H:%M:%S"))
-aptos_address = "APTOS钱包地址： 0x6c8a3474cb49202515d121fea0f3217d303e41f6bdc43e615f1cd90855118089"
-balance_remaining = "当前余额：" + response_dict[0]['data']['active']['value']
-with open('/root/aptos_check/npool_aptos_balance_remaining.txt','w',encoding='utf-8') as f:
-    f.write(time_now + "\n")
-    f.write(aptos_address + "\n")
-    f.write(balance_remaining + "\n")
+echo "当前时间：${DATETIME}" > ${MAIL_CONTEXT}
+echo "APTOS钱包地址： 0x6c8a3474cb49202515d121fea0f3217d303e41f6bdc43e615f1cd90855118089" >> ${MAIL_CONTEXT}
+
+/home/test/bin/aptos node get-stake-pool \
+--owner-address 0x6064d2f4c38b65e9b78fbdf8a80f084159341d47b5e0c192492923326d1bed0a \
+--url https://fullnode.mainnet.aptoslabs.com | awk -F',' '/total_stake/ {print $1}' | sed 's/^[ ]*//g' >>${MAIL_CONTEXT}
+
+#--url https://fullnode.mainnet.aptoslabs.com | jq .Result[0].total_stake
+# jq语法参考：https://blog.csdn.net/wzj_110/article/details/117387891
+
+
+#mail -s 'aptos balance remain' -r wangxufeng@npool.com  -c "zhaoyubin@npool.com,yangxuedong@npool.com"  wangxufeng@npool.com <${MAIL_CONTEXT}  >>/tmp/mailx.log 2>&1
+/usr/bin/mail -s 'aptos balance remain'  -r wangxufeng@npool.com -c "yangxuedong@npool.com,zhaoyubin@npool.com"  wangxufeng@npool.com <${MAIL_CONTEXT}  >>/tmp/mailx.log 2>&1
