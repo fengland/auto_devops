@@ -1,12 +1,17 @@
-import requests,json
+import requests,json,os,sys
 import time
 from lxml import etree
 import send_mail_with_attachment
 from pathlib import *
 import logging
 
-#LOG_FILE=Path.cwd()/'check_account.log'
-LOG_FILE=Path('/root/check_post_account/check_account.log')
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
+
+#os.chdir(os.path.dirname(sys.argv[0]))
+LOG_FILE=Path.cwd()/'check_account.log'
+#LOG_FILE=Path('/root/check_post_account/check_account.log')
 logger = logging.getLogger('test')
 logger.setLevel(level=logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
@@ -20,6 +25,8 @@ file_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
 
+
+logger.debug(f'5当前目录{os.path.dirname(sys.argv[0])}')
 # 用于爬取指定账号的POST账户余额
 
 BASE_URL='https://filfox.info/zh/address/'
@@ -33,8 +40,9 @@ headers = {
     'Content-Type':"application/json;charset=UTF-8"
 }
 
-#ACCOUNT_INFO=Path.cwd()/'account.info'
-ACCOUNT_INFO=Path('/root/check_post_account/account.info')
+ACCOUNT_INFO=Path.cwd()/'account.info'
+print(f'{ACCOUNT_INFO}')
+#ACCOUNT_INFO=Path('/root/check_post_account/account.info')
 def get_post_account():
     logger.info(f'信息文件：{ACCOUNT_INFO}')
     with open(ACCOUNT_INFO,'r',encoding='utf-8') as f:
@@ -46,18 +54,19 @@ def get_post_account():
             WALLET_ADDRESS=line.split("\t")[2].rstrip('\n')
             # print(BASE_URL+WALLET_ADDRESS)
             URL=BASE_URL+WALLET_ADDRESS
-            logger.info(f'checking {NODE_ID} {PROPERTY_RIGHT} {WALLET_ADDRESS}')
+            #logger.info(f'checking {NODE_ID} {PROPERTY_RIGHT} {WALLET_ADDRESS}')
             try:
                 html = requests.get(URL, headers=headers).text
                 # print(html)
                 tree = etree.HTML(html, etree.HTMLParser())
                 POST_BALANCE=tree.xpath('//*[@id="__layout"]/div/div[1]/div[1]/div[2]/div/dl[4]/dd/text()')
                 POST_BALANCE=float(str(POST_BALANCE[0]).replace('FIL','').strip())
+                logger.info(str(NODE_ID) +'\t' +  str(PROPERTY_RIGHT) +'\t' + str(WALLET_ADDRESS) + '\t'+'当前余额：'+'\t'+ str(POST_BALANCE) )
                 # print(POST_BALANCE)
                 if 20 > POST_BALANCE:
                     # print(NODE_ID,PROPERTY_RIGHT,WALLET_ADDRESS,'余额不足告警，当前余额：',POST_BALANCE)
                     send_mail_with_attachment.MAIL_CONTENT=send_mail_with_attachment.MAIL_CONTENT +  str(NODE_ID) + str(PROPERTY_RIGHT) + str(WALLET_ADDRESS) +'余额不足告警，当前余额：'+ str(POST_BALANCE) + '\n'
-                    logger.info(str(NODE_ID) + str(PROPERTY_RIGHT) + str(WALLET_ADDRESS) +'余额不足告警，当前余额：'+ str(POST_BALANCE) )
+                    logger.info(str(NODE_ID) +'\t'+ str(PROPERTY_RIGHT) +'\t'+ str(WALLET_ADDRESS)+ '\t' +'余额不足告警，当前余额：' +'\t'+ str(POST_BALANCE) )
 
 
             except Exception as e:
@@ -79,7 +88,10 @@ def send_mail():
 
 if __name__ == '__main__':
     logger.info('starting check....')
+    logger.info(f'current dir is {sys.path[0]}')
     get_post_account()
-    send_mail()
-
-
+    logger.info(f'告警信息长度{len(send_mail_with_attachment.MAIL_CONTENT)}')
+    if len(send_mail_with_attachment.MAIL_CONTENT) < 10:
+        logger.info('所有节点余额大于20，略去告警')
+    else:
+        send_mail()
