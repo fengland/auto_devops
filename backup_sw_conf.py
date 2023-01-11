@@ -25,7 +25,7 @@ file_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
 
-
+# 交换机名字不能出现"/",否则会无法创建日志文件
 ip_list = [
     ['fw1','10.10.10.1'],
 ]
@@ -48,7 +48,9 @@ for ip_item in ip_list:
         safor = connect.send_command('save force')
         config = connect.send_command('dis cur')
         # fan = connect.send_command('dis fan')
-
+        # 以下可以实现连续执行多条命令
+        #commands = ['dis power','dis fan']
+        #config = connect.send_config_set(commands)
 
         # 指定备份文件目录
         file_dir = pathlib.Path('conf_backup1')
