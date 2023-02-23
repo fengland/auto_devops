@@ -46,12 +46,9 @@ headers = {
 
 
 def get_fault_sector_count(url):
-    try:
-        result = requests.post(url, headers=headers, data=json.dumps(basic_datas)).text
-        result_json = json.loads(result)
-        fault_sector_count = result_json['result']['extra']['fault_sector_count']
-    except Exception as e:
-        logger.debug(e)
+    result = requests.post(url, headers=headers, data=json.dumps(basic_datas)).text
+    result_json = json.loads(result)
+    fault_sector_count = result_json['result']['extra']['fault_sector_count']
 
 
 
@@ -66,7 +63,7 @@ def get_fault_sector_count(url):
 if __name__ == '__main__':
     logger.info("程序开始执行")
 
-    receivers=['jiankong@npool.com','wangxufeng@npool.com','cbe290f3-bc36-4563-b15d-c2abf73139b9@fwalert.com']
+    receivers=['yangxuedong@npool.com','project@npool.com','jiankong@npool.com','77ab2a93-fbfe-4ecc-91ff-bd55ccf42a48@fwalert.com']
     mail = send_mail_with_attachment.SendMail(receivers)
     for node_no in vars.ALL_NODE_NO:
         url=base_url+node_no
@@ -81,11 +78,8 @@ if __name__ == '__main__':
         }
         print(f"getting node:{node_no}")
         logger.info(f"开始检测节点:{node_no}")
-        try:
-            get_fault_sector_count(url)
-            time.sleep(1)
-        except Exception as e:
-            logger.debug(e)
+        get_fault_sector_count(url)
+        time.sleep(1)
         logger.info(f"检测节点号：{node_no}结束")
 
     print(f"邮件正文长度：{len(mail.MAIL_CONTENT)}")
@@ -93,12 +87,12 @@ if __name__ == '__main__':
         print("aaaaa"*10)
         logger.debug(f"告警内容：{mail.MAIL_CONTENT}")
         print(len(mail.MAIL_CONTENT))
-        mail.subject='FIL fault_sector_count RED ALERT'
+        mail.subject='FIL fault_sector_count ALERT'
         print(mail.receivers)
-        mail.mail_subject("FIL fault_sector_count RED ALERT")
+        mail.mail_subject("FIL fault_sector_count ALERT")
         mail.MAIL_CONTENT = mail.MAIL_CONTENT +  """
         该告警为掉算力告警，如看到此邮件，请截图发在微信群，并艾特唐红，
-        如果唐红未回复信息，请拔打手机号：13612203199 ，联系斌哥
+        如果唐红未回复信息，请拔打手机号：13612203199 ，联系kk
         """
         mail.mail_content(mail.MAIL_CONTENT)
         logger.info(f"开始发送告警邮件，收件人：{receivers}")

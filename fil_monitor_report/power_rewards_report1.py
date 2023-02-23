@@ -126,7 +126,7 @@ except Exception as e:
 if __name__ == '__main__':
     logger.info("程序开始执行")
 
-    receivers=['yangxuedong@npool.com','project@npool.com','jiankong@npool.com']
+    receivers=['yangxuedong@npool.com','project@npool.com']
     #receivers=['jiankong@npool.com','wangxufeng@npool.com']
     mail = send_mail_with_attachment.SendMail(receivers)
     with open('node_info.csv', 'r') as csv_file:

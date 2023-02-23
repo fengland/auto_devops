@@ -12,15 +12,15 @@ from email.mime.application import MIMEApplication
 class SendMail:
     def __init__(self,receivers):
         # 第三方SMTP服务
-        self.mail_host = 'smtp.gmail.com'
-        self.mail_user = 'alerts987654@gmail.com '
-        self.mail_pass = 'ipknmasfowreqlmmofasd'
-        self.sender = 'alerts987654@gmail.com '
+        self.mail_host = 'smtp.qq.com'
+        self.mail_user = '375540509@qq.com'
+        self.mail_pass = 'xuhadtxwcmxibhgc'
+        self.sender = '375540509@qq.com'
         self.receivers = receivers
 
         # 创建一个带附件的实例
         self._message = MIMEMultipart()
-        self._message['From'] = 'alerts987654@gmail.com '
+        self._message['From'] = '375540509@qq.com'
         self._message['To'] = 'all'
 
         # 邮件标题
@@ -28,7 +28,8 @@ class SendMail:
         # self._message['Subject'] = Header(self.subject,'utf-8')
 
         # 邮件正文
-        self.MAIL_CONTENT = ""
+        self.MAIL_CONTENT = """
+        """
     def mail_subject(self,subject):
         self.subject=subject
         self._message['Subject'] = Header(self.subject, 'utf-8')
@@ -46,10 +47,8 @@ class SendMail:
 
     # 发送邮件
     def send_mail(self):
-        smtpObj = smtplib.SMTP(self.mail_host)
-        smtpObj.connect(self.mail_host, 587)
-        smtpObj.ehlo()
-        smtpObj.starttls()
+        smtpObj = smtplib.SMTP()
+        smtpObj.connect(self.mail_host, 25)
         smtpObj.login(self.mail_user, self.mail_pass)
         smtpObj.sendmail(self.sender, self.receivers, self._message.as_string())
         smtpObj.quit()
