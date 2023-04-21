@@ -1,0 +1,7 @@
+coin_type: ironfish
+user: xspace
+password: "$6$rounds=656000$f5JcpNcHTHf8Oho1$pc1/H9hdUuLumkI/2ehcmnzqdMBRojnt/hFkrwfda0YXC2SWyR6kktRd6b1Crxyws5tKsnlZKV6S2qpM6e88i/"
+cuda-file: cuda_12.1.0_530.30.02_linux.run
+proxy-file: xproxy-ironfish-v3.0.3-1.zip
+miner-file: HPool-Miner-ironfish-v3.0.3-1-linux.zip
+unarchive-dir: IronFish-v3.0.3
