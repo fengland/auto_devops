@@ -1,0 +1,91 @@
+- hosts: allhost
+  vars_files: vars.yaml
+  user: '{{ user }}'
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+    - name: Add user {{ user }}
+      user: name={{user}} comment="wangguan user" password={{ password }} shell=/bin/bash
+    - name: Config /etc/sudoers
+      lineinfile: dest=/etc/sudoers state=present  line='{{item}}' validate='visudo -cf %s'
+      with_items:
+        - "{{ user}} ALL=(ALL) NOPASSWD: ALL"
+        - "Defaults: {{user}}  !requiretty"
+      register: result
+    - name: Show  info
+      debug: var=result.stdout verbosity=0
+    - name: 设置时区
+      shell: 'timedatectl set-timezone Asia/Shanghai'
+    - name: 安装chronyd
+      yum:
+        name: chrony 
+        state: latest
+    - name: 启动chronyd
+      service:
+        name: chronyd 
+        state: restarted 
+        enabled: yes
+    - name: 上传cuda文件
+      file:
+        src='{{cuda-file}}'
+        dest='/tmp/'
+    - name: 检查显卡驱动
+      shell: 'nvidia-smi -L'
+    - name: 创建工作目录
+      file:
+        path: '/home/{{ user }}/{{coin_type}}'
+        state: directory 
+        owner: '{{ user }}' 
+        group: '{{ user }}'
+        mode: 0755
+    - name: 创建日志目录
+      file:
+        path: '/var/log/{{coin_type}}'
+        state: directory 
+        owner: '{{ user }}'
+        group: '{{ user }}'
+        mode: 0755
+    - name: 上传代理文件
+      file:
+        src='{{proxy-file}}'      
+        dest='/home/{{user}}/{{coin_type}}/''  
+        backup=yes 
+        mode=644
+    - name: 安装unzip
+      file:
+        name: unzip  
+        state: present
+    - name: 解压代理文件
+      unarchive:
+        src： '/home/{{user}}/{{coin_type}}/'{{miner-file}}''  
+        dest： '/home/{{user}}/{{coin_type}}/'
+    - name: 创建软链接
+      file:
+        src: '/home/{{user}}/{{coin_type}}/'{{unarchive-dir}}''  
+        path: '/home/{{user}}/{{coin_type}}/{{coin_type}}-proxy'  
+        state: link
+    - name: 上传config文件
+      copy:
+        src: ironfish-proxy-custom-config.yaml    
+        dest: '/home/{{user}}/{{coin_type}}/{{coin_type}}-proxy/config.yaml'  
+        backup: yes 
+        mode: 644
+      notify: daemon-reload and restart ironfish-miner
+    - name: 上传system unit文件
+      copy:
+        src: '/root/ironfish/{{coin_type}}-miner.service'    
+        dest: /etc/systemd/system/  
+        backup: yes 
+        mode: 644
+      notify: daemon-reload and restart ironfish-miner
+
+
+  handlers:
+    - name: daemon-reload and restart ironfish-miner
+      service:
+        name: '{{coin_type}}-proxy'  
+        state: restarted 
+        enabled: yes 
+        daemon-reload: yes
+
