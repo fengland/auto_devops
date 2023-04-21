@@ -1,0 +1,19 @@
+[Unit]
+Description=ironfish-proxy
+Documentation=https://www.hpool.in/help/tutorial/42
+After=syslog.target
+
+[Service]
+#ExecStart=/root/ironfish/linux/hpool-miner-ironfish-cuda  -config /root/ironfish/linux/config.yaml
+ExecStart=/home/xspace/ironfish/ironfish-proxy/x-proxy-ironfish-linux-amd64 -config /home/xspace/ironfish/ironfish-proxy/config.yaml
+SuccessExitStatus=143
+#User=ubuntu
+#Group=ubuntu
+Restart=always
+RestartSec=5
+Type=simple
+StandardOutput=file:/var/log/ironfish/ironfish-proxy.log
+StandardError=file:/var/log/ironfish/ironfish-proxy-error.log
+
+[Install]
+WantedBy=multi-user.target
