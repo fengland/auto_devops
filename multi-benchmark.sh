@@ -16,7 +16,8 @@ function plot_one() {
   mkdir -p /mnt/nvme0n1/$2
   start_ts=$(date +%s)
   CUDA_VISIBLE_DEVICES=$1 ./build-release/bladebit_cuda  -f 0x90f9c5bb377d38c49f482d248bb02cf8407cb7bea2a7a7984b19974709029ac1b71cae894080e9f9815340b1eac8e147  -p 8d9ab5be5de553f178509c98da65fb88fb1577a8c2b4dc139271e2ae366d1b30ca857196fd03f76281a8ade3c329a507 --compress 7 cudaplot /mnt/nvme0n1/$2
-  #sleep 5
+  # 把任务成功或者失败打印进日志里
+  [ $? -eq 0 ] &&  echo "$(date) ---gpu$1 sucess" >> $LOG_FILE || echo "$(date) ---gpu$1 failure" >> $LOG_FILE
   end_ts=$(date +%s)
   seconds=$(( seconds + end_ts - start_ts ))
   echo $seconds > $SECONDS_FILE
@@ -30,9 +31,6 @@ function plot_forever() {
   done
 }
 
-# 以下两条命令bash会新开启两个进程，导致plot_one函数里修改count和seconds的值以后无法传递给main函数
-# 以至于在main函数中count一直等于0，函数一直在判断，等待循环
-# 为了实现数字传递，使用文件来共享数字，让mian函数能往下继续执行
 plot_forever 0 &
 plot_forever 1 &
 
