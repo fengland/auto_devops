@@ -4,6 +4,8 @@ from requests.exceptions import RequestException
 import urllib3
 import pickle
 import json
+import pytz
+from datetime import datetime
 
 # 禁用SSL警告（如果使用HTTPS）
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -93,7 +95,11 @@ def get_pool_info(miner_url, username, password):
             print("JSON数据:", json.dumps(data, indent=4, ensure_ascii=False))
             
             print("状态：", data.get("STATUS").get("STATUS"))
+            utc_time = datetime.fromtimestamp(data.get("STATUS").get("when"), tz=pytz.utc)
+            beijing_time = utc_time.astimezone(beijing_tz)
             print("当前时间：", data.get("STATUS").get("when"))
+            print("UTC时间：", utc_time)
+            print("北京时间：", beijing_time)
             print("Msg：", data.get("STATUS").get("Msg"))
             print("api_version：", data.get("STATUS").get("api_version"))
 
@@ -165,10 +171,11 @@ def get_pool_info(miner_url, username, password):
 
 # 使用示例
 if __name__ == "__main__":
+    beijing_tz = pytz.timezone('Asia/Shanghai')
     # 配置你的矿机信息
     MINER_URL = "http://10.1.1.34"  # 替换为实际的矿机地址
     USERNAME = "root"  # 矿机通常默认用户名是root
-    PASSWORD = "root"  # 替换为实际密码
+    PASSWORD = "NGPIKb@4ty"  # 替换为实际密码
     
     # 执行登录并检查状态
     success, status_code, content = login_and_check_status(MINER_URL, USERNAME, PASSWORD)
@@ -184,7 +191,7 @@ if __name__ == "__main__":
         if content:
             print("错误响应:", content[:500])
 
-# 如果还是失败，尝试其他可能的URL路径
+
 
     # 获取系统信息
     url=f"{MINER_URL}/cgi-bin/get_system_info.cgi"
