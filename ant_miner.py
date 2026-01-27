@@ -175,7 +175,7 @@ if __name__ == "__main__":
     # 配置你的矿机信息
     MINER_URL = "http://10.1.1.34"  # 替换为实际的矿机地址
     USERNAME = "root"  # 矿机通常默认用户名是root
-    PASSWORD = "NGPIKb@4ty"  # 替换为实际密码
+    PASSWORD = "root"  # 替换为实际密码
     
     # 执行登录并检查状态
     success, status_code, content = login_and_check_status(MINER_URL, USERNAME, PASSWORD)
