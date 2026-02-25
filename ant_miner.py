@@ -5,7 +5,9 @@ import urllib3
 import pickle
 import json
 import pytz
+import time
 from datetime import datetime
+import os
 
 # 禁用SSL警告（如果使用HTTPS）
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -92,10 +94,12 @@ def get_pool_info(miner_url, username, password):
         try:
             data = json.loads(content)
             #  print("JSON数据:", data)
-            print("JSON数据:", json.dumps(data, indent=4, ensure_ascii=False))
+            #print("JSON数据:", json.dumps(data, indent=4, ensure_ascii=False))
             
             print("状态：", data.get("STATUS").get("STATUS"))
+            # utc_time = datetime.fromtimestamp(data.get("STATUS").get("when"), tz=pytz.utc)
             utc_time = datetime.fromtimestamp(data.get("STATUS").get("when"), tz=pytz.utc)
+
             beijing_time = utc_time.astimezone(beijing_tz)
             print("当前时间：", data.get("STATUS").get("when"))
             print("UTC时间：", utc_time)
@@ -169,13 +173,156 @@ def get_pool_info(miner_url, username, password):
         except json.JSONDecodeError:
             print("响应内容不是有效的JSON格式")
 
+
+def get_miner_config(miner_url, username, password):
+    success, status_code, content = login_and_check_status(url, username, password)
+    print(success)
+    print(f"状态码: {status_code}")
+    # print("响应内容预览:", content[:500] if content else "无响应内容")
+    # 获取content的json格式
+    if content:
+        try:
+            data = json.loads(content)
+            #  print("JSON数据:", data)
+            #  print("JSON数据:", json.dumps(data, indent=4, ensure_ascii=False))
+            print(data)
+            print("bitmain-work-mode：", data.get("bitmain-work-mode"))
+            print("bitmain-voltage：", data.get("bitmain-voltage"))
+            print("bitmain-ccdelay：", data.get("bitmain-ccdelay"))
+            print("bitmain-pwth：", data.get("bitmain-pwth"))
+            print("bitmain-ex-hashrate：", data.get("bitmain-ex-hashrate"))
+
+            print("pool0-url：", data.get("pools")[0].get("url"))
+            print("pool0-user：", data.get("pools")[0].get("user"))
+            print("pool0-pass：", data.get("pools")[0].get("pass"))
+            print("pool1-url：", data.get("pools")[1].get("url"))
+            print("pool1-user：", data.get("pools")[1].get("user"))
+            print("pool1-pass：", data.get("pools")[1].get("pass"))
+            print("pool2-url：", data.get("pools")[2].get("url"))
+            print("pool2-user：", data.get("pools")[2].get("user"))
+            print("pool2-pass：", data.get("pools")[2].get("pass"))
+        except json.JSONDecodeError:
+            print("响应内容不是有效的JSON格式")
+
+def download_logs(miner_url, username, password):
+
+
+    if success and status_code == 200:
+        host=MINER_URL.split('//')[-1].split('/')[0]  # 得到 "10.1.1.34"
+        host_dashed = host.replace('.', '-')  # 得到 "10-1-1-34"
+        current_date = time.strftime("%Y-%m-%d")
+        # filename = f"{host_dashed}-antminer_log-{current_date}.tar"
+        filename = f"{host_dashed}-antminer_log-2026-01-28.tar"
+
+        # 如果文件已存在，先删除它
+        try:
+            if os.path.exists(filename):
+                os.remove(filename)
+                print(f"已删除旧文件: {filename}")
+        except OSError as e:
+            print(f"删除文件失败 {filename}: {e}")
+        
+        print(f"准备保存日志文件为: {filename}")
+        try:
+            # 关键：将字符串编码为字节
+            with open(filename, 'wb') as f:
+                f.write(content.encode('utf-8'))  # 添加 encode()
+            print(f"文件已成功保存为: {filename}")
+        except Exception as e:
+            print(f"文件保存失败: {e}")
+    else:
+        print(f"下载失败，状态码: {status_code}")
+
+
+paylod={
+  "bitmain-fan-ctrl": False,
+  "bitmain-fan-pwm": "100",
+  "bitmain-hashrate-percent": "100",
+  "miner-mode": 0,
+  "pools": [
+    {
+      "url": "stratum+tcp://ss.antpool.com:3333",
+      "user": "KJDTX008.10x1x1x24",
+      "pass": ""
+    },
+    {
+      "url": "stratum+tcp://ss.antpool.com:443",
+      "user": "KJDTX008.10x1x1x24",
+      "pass": ""
+    },
+    {
+      "url": "stratum+tcp://btc.f2pool.com:1314",
+      "user": "kjdtx008f2pool.10x1x1x24",
+      "pass": ""
+    }
+  ]
+}
+
+
+
+def set_miner_config(miner_url, username, password):
+    """
+    使用Digest认证登录矿机管理界面并检查状态码
+    
+    Args:
+        miner_url (str): 矿机管理界面的URL
+        username (str): 登录用户名
+        password (str): 登录密码
+    
+    Returns:
+        tuple: (是否登录成功, 状态码, 响应内容)
+    """
+    # 创建会话对象
+    session = requests.Session()
+    
+    try:
+        # 使用Digest认证
+        print("尝试使用Digest认证...")
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        }
+        
+        # response = session.get(
+        #     miner_url,
+        #     auth=HTTPDigestAuth(username, password),
+        #     headers=headers,
+        #     verify=False  # 如果是HTTPS且证书有问题，禁用验证
+        # )
+        response=session.post(
+            miner_url, 
+            auth=HTTPDigestAuth(username, password), 
+            headers=headers, 
+            verify=False,
+            json=paylod)
+        print(response.text)
+        
+        if response.status_code == 200:
+            print("登录成功！")
+            return True, response.status_code, response.text
+        else:
+            print(f"登录失败，状态码: {response.status_code}")
+            return False, response.status_code, response.text
+        
+            
+    except RequestException as e:
+        print(f"请求出错: {str(e)}")
+        return False, None, None
+
+
+
+
+
+
+
+
 # 使用示例
 if __name__ == "__main__":
     beijing_tz = pytz.timezone('Asia/Shanghai')
     # 配置你的矿机信息
-    MINER_URL = "http://10.1.1.34"  # 替换为实际的矿机地址
+    MINER_URL = "http://10.1.1.24"  # 替换为实际的矿机地址
     USERNAME = "root"  # 矿机通常默认用户名是root
-    PASSWORD = "root"  # 替换为实际密码
+    PASSWORD = "NGPIKb@4ty"  # 替换为实际密码
     
     # 执行登录并检查状态
     success, status_code, content = login_and_check_status(MINER_URL, USERNAME, PASSWORD)
@@ -196,9 +343,25 @@ if __name__ == "__main__":
     # 获取系统信息
     url=f"{MINER_URL}/cgi-bin/get_system_info.cgi"
     print(f"\n尝试访问: {url}")
-    get_system_info(url, USERNAME, PASSWORD)
+    # get_system_info(url, USERNAME, PASSWORD)
     
     # 获取矿池信息
     url=f"{MINER_URL}/cgi-bin/pools.cgi"
     print(f"\n尝试访问: {url}")
-    get_pool_info(url, USERNAME, PASSWORD)
+    # get_pool_info(url, USERNAME, PASSWORD)
+
+    # 获取矿机配置
+    url=f"{MINER_URL}/cgi-bin/get_miner_conf.cgi"   
+    print(f"\n尝试访问: {url}")
+    # get_miner_config(url, USERNAME, PASSWORD)
+
+    # 下载日志
+    url=f"{MINER_URL}/log/antminer_log-2026-01-28.tar"
+    print(f"\n尝试访问: {url}")
+    # download_logs(url, USERNAME, PASSWORD)
+
+    # 设置矿机配置
+    url=f"{MINER_URL}/cgi-bin/set_miner_conf.cgi"
+    print(f"\n尝试访问: {url}")
+    set_miner_config(url, USERNAME, PASSWORD)
+
