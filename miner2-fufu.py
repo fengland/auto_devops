@@ -15,7 +15,7 @@ import os
 # 禁用SSL警告（如果使用HTTPS）
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def login_and_check_status(miner_url, username, password):
+def login_and_get_info(miner_url, username, password):
     """
     使用Digest认证登录矿机管理界面并检查状态码
     
@@ -61,7 +61,7 @@ def login_and_check_status(miner_url, username, password):
 def get_miner_summary(url, username, password):
     # url=f"{MINER_URL}/cgi-bin/get_system_info.cgi"
     # print(f"\n尝试访问: {url}")
-    success, status_code, content = login_and_check_status(url, username, password)
+    success, status_code, content = login_and_get_info(url, username, password)
     print(success)
     print(f"状态码: {status_code}")
     # print("响应内容预览:", content[:500] if content else "无响应内容")
@@ -94,7 +94,7 @@ def get_miner_summary(url, username, password):
 def get_miner_stats(url, username, password):
     # url=f"{MINER_URL}/cgi-bin/get_system_info.cgi"
     # print(f"\n尝试访问: {url}")
-    success, status_code, content = login_and_check_status(url, username, password)
+    success, status_code, content = login_and_get_info(url, username, password)
     print(success)
     print(f"状态码: {status_code}")
     # print("响应内容预览:", content[:500] if content else "无响应内容")
@@ -181,8 +181,6 @@ def get_miner_stats(url, username, password):
             print("miner_version:", data.get("STATS")[1].get("miner_version"))
             print("miner_id:", data.get("STATS")[1].get("miner_id"))
 
-
-
         except json.JSONDecodeError:
             print("响应内容不是有效的JSON格式")
 
@@ -194,7 +192,7 @@ def get_miner_stats(url, username, password):
 def get_network_info(url, username, password):
     # url=f"{MINER_URL}/cgi-bin/get_system_info.cgi"
     # print(f"\n尝试访问: {url}")
-    success, status_code, content = login_and_check_status(url, username, password)
+    success, status_code, content = login_and_get_info(url, username, password)
     print(success)
     print(f"状态码: {status_code}")
     # print("响应内容预览:", content[:500] if content else "无响应内容")
@@ -203,7 +201,7 @@ def get_network_info(url, username, password):
         try:
             data = json.loads(content)
             # print("JSON数据:", data)
-            print("JSON数据:", json.dumps(data, indent=4, ensure_ascii=False))
+            # print("JSON数据:", json.dumps(data, indent=4, ensure_ascii=False))
             print("nettype:", data.get("nettype"))
             print("netdevice:", data.get("netdevice"))
             print("macaddr:", data.get("macaddr"))
@@ -223,7 +221,7 @@ def get_network_info(url, username, password):
 def get_system_info(url, username, password):
     # url=f"{MINER_URL}/cgi-bin/get_system_info.cgi"
     # print(f"\n尝试访问: {url}")
-    success, status_code, content = login_and_check_status(url, username, password)
+    success, status_code, content = login_and_get_info(url, username, password)
     print(success)
     print(f"状态码: {status_code}")
     # print("响应内容预览:", content[:500] if content else "无响应内容")
@@ -253,7 +251,7 @@ def get_system_info(url, username, password):
 def get_miner_pools(miner_url, username, password):
     # url=f"{MINER_URL}/cgi-bin/get_system_info.cgi"
     # print(f"\n尝试访问: {url}")
-    success, status_code, content = login_and_check_status(url, username, password)
+    success, status_code, content = login_and_get_info(url, username, password)
     print(success)
     print(f"状态码: {status_code}")
     # print("响应内容预览:", content[:500] if content else "无响应内容")
@@ -314,7 +312,7 @@ def get_miner_pools(miner_url, username, password):
 
 
 def get_Miner_General_Configuration(miner_url, username, password):
-    success, status_code, content = login_and_check_status(url, username, password)
+    success, status_code, content = login_and_get_info(url, username, password)
     print(success)
     print(f"状态码: {status_code}")
     # print("响应内容预览:", content[:500] if content else "无响应内容")
@@ -464,7 +462,7 @@ if __name__ == "__main__":
     PASSWORD = "root"  # 替换为实际密码
     
     # 执行登录并检查状态
-    success, status_code, content = login_and_check_status(MINER_URL, USERNAME, PASSWORD)
+    success, status_code, content = login_and_get_info(MINER_URL, USERNAME, PASSWORD)
 
     print(success)
     
@@ -505,7 +503,7 @@ if __name__ == "__main__":
     print(f"\n尝试访问: {url}")
     # download_logs(url, USERNAME, PASSWORD)
 
-    # 设置矿机配置
+    # 修改矿机配置
     url=f"{MINER_URL}/cgi-bin/set_miner_conf.cgi"
     print(f"\n尝试访问: {url}")
     # set_miner_config(url, USERNAME, PASSWORD)
